@@ -24,7 +24,7 @@ function store_visit(){
     var x = new XMLHttpRequest();
     x.onload = function() {
         var resp = JSON.parse(x.responseText);
-        
+        // if everything is okay, server response is {"OK":"Visit stored."}
     }
     x.open("GET","http://thaaoblues.pythonanywhere.com/hit/&lt;endpoint_id&gt;",true);
 
