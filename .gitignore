@@ -1,2 +1,4 @@
 /__pycache__
 /constants.py
+/internal.db
+/metrics.db
