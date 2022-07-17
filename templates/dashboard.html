@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cusmo dashboard</title>
+</head>
+<body>
+    
+    <h3>Hello {{username}} :D</h3>
+    <button onclick="window.location.href='/'">How to use Cusmo ?</button>
+    <div>
+        <h4><a href="javascript:display_api_key()">See your api key :</a><a id="api_key" style="visibility: hidden; text-align:center;">  {{api_key}}</a></h5>
+    </div>
+    <button onclick="window.location.href='/generate_endpoint'">Generate endpoint</button>
+    <div style="text-align:center;">
+
+        <h1>Here are your actives endpoints :</h1>
+        <hr>
+        {%for ep in endpoints%}
+        
+            {% if ep != "" %}
+                <div id="{{ep['endpoint_id']}}"><h1>{{ep['name']}} (http://thaaoblues.pythonanywhere.com/hit/{{ep['endpoint_id']}})<br><button onclick="window.location.href='/endpoint_stats/{{ep['endpoint_id']}}?api_key={{api_key}}'">full json stats</button></h1>                
+                    <h4><button onclick="javascript:rename_endpoint({{ep['endpoint_id']}})">rename endpoint</button></h4>
+                </div>
+                <hr>
+            {%endif%}
+        {%endfor%}
+
+    </div>
+    
+</body>
+
+<script>
+    function req_stats(ep){
+        var x = new XMLHttpRequest();
+        x.onload = function() {
+            var resp = JSON.parse(x.responseText);
+
+            for(var i in resp){
+                var key = i;
+                var val = resp[i];
+
+                if( typeof(val) == 'object' && key != "database"){
+                    for (var j in val){
+                        var subkey = j;
+                        var subval = val[j];
+                        
+                        if( typeof(val) == 'object' && subkey == "most_used_referrer"){ //for most used url referrer
+                            document.getElementById(ep).innerHTML += "<h3><br> most used referrer : " + subval.REFERRER +" ("+ subval.count+" hits)</h3>";
+                        }else{
+                            document.getElementById(ep).innerHTML += "<h3><br>" + subkey.replace(/_/g," ") +" : "+ subval+"</h3>";
+                        }
+                        
+                    }
+                }
+
+                
+            }
+            
+        }
+        x.open("GET","/endpoint_stats/"+ep+"?api_key={{api_key}}",true);
+        x.setRequestHeader("X-CSRFToken", "{{csrf_token()}}");
+
+        x.send();
+
+       
+    }
+
+
+    function add_endpoint_to_dashboard(){
+        var ep = document.getElementById("endpoint_input").value;
+
+        if(window.location.href.split("?")[1] == undefined){
+            var params = "?eps=" +ep;
+        }else{
+            var params = "?eps=" + window.location.href.split("?eps=")[1] + "-" +ep;
+        }
+
+        window.location.href = window.location.pathname + params;
+    }
+
+
+    function rename_endpoint(endpoint_id){
+        var x = new XMLHttpRequest();
+        x.onload = function() {
+            var resp = JSON.parse(x.responseText);
+            window.location.reload();
+        }
+
+        var new_name = prompt("Type here the new name :","endpoint"+endpoint_id);
+        x.open("GET","/rename_endpoint/"+endpoint_id+"?api_key={{api_key}}&new_name="+new_name,true);
+        x.setRequestHeader("X-CSRFToken", "{{csrf_token()}}");
+
+        x.send();
+
+
+    }
+
+
+    {%for ele in endpoints%}
+
+        {% if ep != "" %}
+            req_stats({{ele['endpoint_id']}})
+        {%endif%}
+    {%endfor%}
+
+
+    function display_api_key(){
+        if(document.getElementById("api_key").style.visibility == "hidden"){
+            document.getElementById("api_key").style.visibility = "visible";
+        }else{
+            document.getElementById("api_key").style.visibility = "hidden";
+
+        }
+    }
+
+</script>
+</html>
+        
