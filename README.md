@@ -17,18 +17,21 @@ If you want to know how much people are using your program, you just need to gen
 Same if you want to know how much people are using a specific feature, you just make a request to a generated endpoint each time someone is using it.
 </p>
 <h4>Javascript exemple:</h4><br>
-<code>
-    function store_visit(){<br>
+
+```
+function store_visit(){
         
-        var x = new XMLHttpRequest();<br>
-        x.onload = function() {<br>
-            var resp = JSON.parse(x.responseText);<br>
-            
-        }<br>
-        x.open("GET","http://thaaoblues.pythonanywhere.com/hit/&lt;endpoint_id&gt;",true);<br>                        
-        x.setRequestHeader('X-Referer', window.location.href);<br>
-        x.send();<br>
-    }<br>
-</code>
+    var x = new XMLHttpRequest();
+    x.onload = function() {
+        var resp = JSON.parse(x.responseText);
+        
+    }
+    x.open("GET","http://thaaoblues.pythonanywhere.com/hit/&lt;endpoint_id&gt;",true);
+
+    x.setRequestHeader('X-Referer', window.location.href);
+    x.send();
+}
+
+```
 
 </h3>
