@@ -6,6 +6,7 @@ from flask_login import login_required, login_user, logout_user, LoginManager, U
 from random import choices
 from flask_dance.contrib.github import make_github_blueprint,github
 from constants import *
+from flask_cors import CORS, cross_origin
 
 from flask_ipban import IpBan
 
@@ -16,7 +17,7 @@ from flask_wtf.csrf import CSRFProtect
 app = Flask(__name__)
 
 csrf = CSRFProtect(app)
-
+cors = CORS(app)
 
 
 # excessive crawl protection
@@ -50,18 +51,15 @@ github_blueprint = make_github_blueprint(
 )
 
 
+app.config['CORS_HEADERS'] = "Content-Type"
+
 
 app.register_blueprint(github_blueprint, url_prefix="/github_login")
 
 db = internal_database()
 
 fm = FlaskMetrics(rows=["IP_ADDR","URL","REFERRER","CUSTOM_DATA"])
-"""
-db.register_user("test")
-print(db.get_user_api_key(1))
-db.add_endpoint(1)
 
-"""
 
 class User(UserMixin):
     
@@ -136,6 +134,7 @@ def home():
 
 
 @app.route("/hit/<endpoint>")
+@cross_origin
 def endpoint(endpoint):
  
     
@@ -160,6 +159,7 @@ def generate_endpoint():
         return jsonify({"Error":"You must have hit your endpoints number limit."})
 
 @app.route("/endpoint_stats/<endpoint>")
+@cross_origin
 def endpoint_stats(endpoint):
     
     if not is_endpoint_valid(endpoint):
